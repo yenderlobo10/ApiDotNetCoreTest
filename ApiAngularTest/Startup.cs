@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ApiAngularTest.Hubs;
+﻿using ApiAngularTest.Hubs;
 using ApiAngularTest.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 namespace ApiAngularTest
 {
@@ -34,12 +28,16 @@ namespace ApiAngularTest
         {
             services.AddCors();
 
-            services.AddMvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(config =>
+            {
+                config.EnableEndpointRouting = false;
+            });            
+
 
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                // Use [postgres] provider.
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -66,7 +64,7 @@ namespace ApiAngularTest
                             ValidIssuer = "localhost",
                             ValidAudience = "localhost",
                             IssuerSigningKey = new SymmetricSecurityKey(
-                                Encoding.UTF8.GetBytes(Configuration["JWT_KEY"])
+                                Encoding.UTF8.GetBytes("B1ED7016BC554BDFBA20AE9E492B8C83")
                             ),
                             ClockSkew = TimeSpan.Zero
                         };
@@ -76,7 +74,7 @@ namespace ApiAngularTest
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -89,7 +87,7 @@ namespace ApiAngularTest
 
 
             app.UseCors(options => options
-               .AllowAnyOrigin()
+               .SetIsOriginAllowed(_ => true)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials()
@@ -99,9 +97,11 @@ namespace ApiAngularTest
             app.UseAuthentication();
             app.UseMvc();
 
-            app.UseSignalR(routes =>
+            
+            app.UseRouting();
+            app.UseEndpoints(config =>
             {
-                routes.MapHub<ChatHub>("/chathub");
+                config.MapHub<ChatHub>("/chathub");
             });
         }
     }

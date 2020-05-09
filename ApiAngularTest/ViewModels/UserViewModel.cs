@@ -16,7 +16,7 @@ namespace ApiAngularTest.ViewModels
             [Required]
             public string Password { get; set; }
 
-            [StringLength(80)]
+            [Required, StringLength(80)]
             public string Name { get; set; }
         }
 

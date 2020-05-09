@@ -113,7 +113,7 @@ namespace ApiAngularTest.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT_KEY"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("B1ED7016BC554BDFBA20AE9E492B8C83"));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiration = DateTime.UtcNow.AddDays(3);
