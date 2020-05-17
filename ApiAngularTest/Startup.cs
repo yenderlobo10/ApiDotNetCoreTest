@@ -28,16 +28,13 @@ namespace ApiAngularTest
         {
             services.AddCors();
 
-            services.AddMvc(config =>
-            {
-                config.EnableEndpointRouting = false;
-            });            
+            services.AddControllers();
 
 
             services.AddDbContext<AppDbContext>(options =>
             {
                 // Use [postgres] provider.
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(Configuration.GetConnectionString("AzureConnection"));
             });
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -85,6 +82,7 @@ namespace ApiAngularTest
                 app.UseHsts();
             }
 
+            app.UseRouting();
 
             app.UseCors(options => options
                .SetIsOriginAllowed(_ => true)
@@ -93,14 +91,15 @@ namespace ApiAngularTest
                .AllowCredentials()
             );
 
+            
             app.UseHttpsRedirection();
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
 
             
-            app.UseRouting();
             app.UseEndpoints(config =>
             {
+                config.MapControllers();
                 config.MapHub<ChatHub>("/chathub");
             });
         }

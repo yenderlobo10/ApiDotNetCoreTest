@@ -1,0 +1,6 @@
+runtime: custom
+env: flex
+
+# GCP SQL Database config
+beta_settings:
+      cloud_sql_instances: "test-project-dotnet-vue:us-west2:app-dotnet-vue-test=tcp:5432"
